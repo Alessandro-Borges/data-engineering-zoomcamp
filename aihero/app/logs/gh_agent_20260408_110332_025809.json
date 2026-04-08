@@ -1,0 +1,126 @@
+{
+  "agent_name": "gh_agent",
+  "system_prompt": "You are a helpful assistant that answers questions about documentation.  \n\nUse the search tool to find relevant information from the course materials before answering questions.  \n\nIf you can find specific information through search, use it to provide accurate answers.\n\nAlways include references by citing the filename of the source material you used.\nReplace it with the full path to the GitHub repository:\n\"https://github.com/DataTalksClub/faq/blob/main/\"\nFormat: [LINK TITLE](FULL_GITHUB_LINK)\n\n\nIf the search doesn't return relevant results, let the user know and provide general guidance.",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "tools": [
+    "search"
+  ],
+  "messages": [
+    {
+      "parts": [
+        {
+          "content": "do you have anythign about AI?",
+          "timestamp": "2026-04-08T11:03:29.191859+00:00",
+          "part_kind": "user-prompt"
+        }
+      ],
+      "instructions": "You are a helpful assistant that answers questions about documentation.  \n\nUse the search tool to find relevant information from the course materials before answering questions.  \n\nIf you can find specific information through search, use it to provide accurate answers.\n\nAlways include references by citing the filename of the source material you used.\nReplace it with the full path to the GitHub repository:\n\"https://github.com/DataTalksClub/faq/blob/main/\"\nFormat: [LINK TITLE](FULL_GITHUB_LINK)\n\n\nIf the search doesn't return relevant results, let the user know and provide general guidance.",
+      "kind": "request"
+    },
+    {
+      "parts": [
+        {
+          "tool_name": "search",
+          "args": "{\"query\":\"AI\"}",
+          "tool_call_id": "call_59WnY8wghD2ayytJ6JgItO4O",
+          "part_kind": "tool-call"
+        }
+      ],
+      "usage": {
+        "input_tokens": 211,
+        "cache_write_tokens": 0,
+        "cache_read_tokens": 0,
+        "output_tokens": 13,
+        "input_audio_tokens": 0,
+        "cache_audio_read_tokens": 0,
+        "output_audio_tokens": 0,
+        "details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0
+        }
+      },
+      "model_name": "gpt-4o-mini-2024-07-18",
+      "timestamp": "2026-04-08T11:03:31+00:00",
+      "kind": "response",
+      "provider_name": "openai",
+      "provider_details": {
+        "finish_reason": "tool_calls"
+      },
+      "provider_response_id": "chatcmpl-DSKyxEAYe0UCyGr5nuYWovuwxuKov",
+      "finish_reason": "tool_call"
+    },
+    {
+      "parts": [
+        {
+          "tool_name": "search",
+          "content": [
+            {
+              "id": "7b3f0193ec",
+              "question": "How do I generate the AGENTS.md file for Codex in dlt?",
+              "sort_order": 20,
+              "content": "To generate the AGENTS.md file for Codex in dlt, follow these steps:\n\n1. Open a terminal and run:\n\n```bash\ndlt ai setup codex\n```\n\n2. The command currently generates a file named `AGENT.md`. Since Codex looks for `AGENTS.md` (plural) by default, rename it:\n\n```bash\nmv AGENT.md AGENTS.md\n```",
+              "filename": "_questions/data-engineering-zoomcamp/workshop-1-dlthub/020_7b3f0193ec_codex-dlt-agents.md"
+            },
+            {
+              "id": "e499535e82",
+              "question": "Course: Is the current cohort going to be different from the previous cohort?",
+              "sort_order": 7,
+              "content": "For the 2025 edition, we are using Kestra (see [Demo](https://www.youtube.com/watch?v=R0JAFvDCmSY)) instead of MageAI (Module 2). Look out for new videos. See [Playlist](https://www.youtube.com/playlist?list=PLEK3H8YwZn1oPPShk2p5k3E9vO-gPnUCf).\n\nFor the 2024 edition, we used Mage AI instead of Prefect and re-recorded the Terraform videos. For 2023, we used Prefect instead of Airflow. See playlists on YouTube and the [cohorts folder in the GitHub repo](https://github.com/DataTalksClub/data-engineering-zoomcamp/tree/main/cohorts).",
+              "filename": "_questions/data-engineering-zoomcamp/general/007_e499535e82_course-is-the-current-cohort-going-to-be-different.md"
+            },
+            {
+              "id": "a83f047f52",
+              "question": "How to troubleshoot issues",
+              "sort_order": 40,
+              "content": "**First Steps:**\n\n- Attempt to solve the issue independently. Familiarize yourself with documentation as a crucial skill for problem-solving.\n- Use shortcuts like `[ctrl+f]` to search within documents and browsers.\n- Analyze the error message for descriptions, instructions, and possible solutions.\n- Restart your application, server, or computer as needed.\n  \n**Search for Solutions:**\n\n- Use search engines like Google, ChatGPT, or Bing AI to research the issue. It is rare to encounter a unique problem.\n- Form your search queries using: `<technology> <problem statement>`. E.g., `pgcli error column c.relhasoids does not exist.`\n- Consult the technology\u2019s official documentation for guidance.\n\n**Uninstallation and Reinstallation:**\n\n- Uninstall and then reinstall the application if needed, including a system restart.\n- Note that reinstalling without prior uninstallation might not resolve the issue.\n\n**Seeking Help:**\n\n- Post questions on platforms like StackOverflow. Ensure your question adheres to guidelines: [how-to-ask](https://stackoverflow.com/help/how-to-ask).\n- Consider asking experts or colleagues in the future.\n\n**Community Resources:**\n\n- Check Slack channels for pinned messages and use its search function.\n- Refer to this FAQ using search `[ctrl+f]` or utilize the `@ZoomcampQABot` for assistance.\n\n**When Asking for Help:**\n\n- Provide detailed information: coding environment, OS, commands, videos followed, etc.\n- Share errors received, with specifics, including line numbers and actions taken.\n- Avoid screenshots; paste code or errors directly. Use ``` for code formatting.\n- Maintain thread consistency; respond in the same thread instead of creating multiple ones.\n\n**Re-evaluation:**\n\n- If the issue recurs, create a new post detailing changes in the environment.\n- Communicate additional troubleshooting steps in the same thread.\n- Occasionally take a break to gain a fresh perspective on the problem.\n\n**Documentation Contribution:**\n\n- If your problem solution is not listed, consider adding it to the FAQ to assist others.",
+              "filename": "_questions/data-engineering-zoomcamp/general/040_a83f047f52_how-to-troubleshoot-issues.md"
+            }
+          ],
+          "tool_call_id": "call_59WnY8wghD2ayytJ6JgItO4O",
+          "metadata": null,
+          "timestamp": "2026-04-08T11:03:32.144972+00:00",
+          "part_kind": "tool-return"
+        }
+      ],
+      "instructions": "You are a helpful assistant that answers questions about documentation.  \n\nUse the search tool to find relevant information from the course materials before answering questions.  \n\nIf you can find specific information through search, use it to provide accurate answers.\n\nAlways include references by citing the filename of the source material you used.\nReplace it with the full path to the GitHub repository:\n\"https://github.com/DataTalksClub/faq/blob/main/\"\nFormat: [LINK TITLE](FULL_GITHUB_LINK)\n\n\nIf the search doesn't return relevant results, let the user know and provide general guidance.",
+      "kind": "request"
+    },
+    {
+      "parts": [
+        {
+          "content": "I found some information related to AI in the context of generating the AGENTS.md file for Codex in the DLT (Data Lattice Toolbox). Here's how to do it:\n\n1. Open a terminal and run the command:\n   ```bash\n   dlt ai setup codex\n   ```\n2. The command generates a file named `AGENT.md`. Since Codex expects a file named `AGENTS.md` (plural), you'll need to rename it with the following command:\n   ```bash\n   mv AGENT.md AGENTS.md\n   ```\n\nYou can find this information in the documentation file [AGENTS.md for Codex in dlt](https://github.com/DataTalksClub/faq/blob/main/_questions/data-engineering-zoomcamp/workshop-1-dlthub/020_7b3f0193ec_codex-dlt-agents.md). \n\nIf you have more specific questions or need further assistance on AI topics, feel free to ask!",
+          "id": null,
+          "part_kind": "text"
+        }
+      ],
+      "usage": {
+        "input_tokens": 1146,
+        "cache_write_tokens": 0,
+        "cache_read_tokens": 0,
+        "output_tokens": 201,
+        "input_audio_tokens": 0,
+        "cache_audio_read_tokens": 0,
+        "output_audio_tokens": 0,
+        "details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0
+        }
+      },
+      "model_name": "gpt-4o-mini-2024-07-18",
+      "timestamp": "2026-04-08T11:03:32+00:00",
+      "kind": "response",
+      "provider_name": "openai",
+      "provider_details": {
+        "finish_reason": "stop"
+      },
+      "provider_response_id": "chatcmpl-DSKyycYC8QSpKZp3SvFrAN6SKpvpC",
+      "finish_reason": "stop"
+    }
+  ],
+  "source": "user"
+}
