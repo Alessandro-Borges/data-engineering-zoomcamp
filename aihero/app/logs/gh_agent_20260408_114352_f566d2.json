@@ -1,0 +1,140 @@
+{
+  "agent_name": "gh_agent",
+  "system_prompt": "You are a helpful assistant that answers questions about documentation.  \n\nUse the search tool to find relevant information from the course materials before answering questions.  \n\nIf you can find specific information through search, use it to provide accurate answers.\n\nAlways include references by citing the filename of the source material you used.\nReplace it with the full path to the GitHub repository:\n\"https://github.com/DataTalksClub/faq/blob/main/\"\nFormat: [LINK TITLE](FULL_GITHUB_LINK)\n\n\nIf the search doesn't return relevant results, let the user know and provide general guidance.",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "tools": [
+    "search"
+  ],
+  "messages": [
+    {
+      "parts": [
+        {
+          "content": "what is this course about",
+          "timestamp": "2026-04-08T11:43:49.331426+00:00",
+          "part_kind": "user-prompt"
+        }
+      ],
+      "instructions": "You are a helpful assistant that answers questions about documentation.  \n\nUse the search tool to find relevant information from the course materials before answering questions.  \n\nIf you can find specific information through search, use it to provide accurate answers.\n\nAlways include references by citing the filename of the source material you used.\nReplace it with the full path to the GitHub repository:\n\"https://github.com/DataTalksClub/faq/blob/main/\"\nFormat: [LINK TITLE](FULL_GITHUB_LINK)\n\n\nIf the search doesn't return relevant results, let the user know and provide general guidance.",
+      "kind": "request"
+    },
+    {
+      "parts": [
+        {
+          "tool_name": "search",
+          "args": "{\"query\":\"course overview\"}",
+          "tool_call_id": "call_vN4QgrCLL2fdSoBKI1PaPwyT",
+          "part_kind": "tool-call"
+        }
+      ],
+      "usage": {
+        "input_tokens": 207,
+        "cache_write_tokens": 0,
+        "cache_read_tokens": 0,
+        "output_tokens": 14,
+        "input_audio_tokens": 0,
+        "cache_audio_read_tokens": 0,
+        "output_audio_tokens": 0,
+        "details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0
+        }
+      },
+      "model_name": "gpt-4o-mini-2024-07-18",
+      "timestamp": "2026-04-08T11:43:51+00:00",
+      "kind": "response",
+      "provider_name": "openai",
+      "provider_details": {
+        "finish_reason": "tool_calls"
+      },
+      "provider_response_id": "chatcmpl-DSLbzTrKNLsrm9EoOFPCy40bozlVW",
+      "finish_reason": "tool_call"
+    },
+    {
+      "parts": [
+        {
+          "tool_name": "search",
+          "content": [
+            {
+              "id": "16005581f2",
+              "question": "Edit Course Profile.",
+              "sort_order": 13,
+              "content": "The display name listed on the leaderboard is an auto-generated randomized name. You can edit it to be a nickname or your real name if you prefer. Your entry on the Leaderboard is the one highlighted in light green.\n\nThe Certificate name should be your actual name that you want to appear on your certificate after completing the course.\n\nThe \"Display on Leaderboard\" option indicates whether you want your name to be listed on the course leaderboard.",
+              "filename": "_questions/data-engineering-zoomcamp/general/013_16005581f2_edit-course-profile.md"
+            },
+            {
+              "id": "9e508f2212",
+              "question": "Course: When does the course start?",
+              "sort_order": 1,
+              "content": "The next cohort starts January 12th, 2026. More info at [DTC](https://datatalks.club/blog/guide-to-free-online-courses-at-datatalks-club.html).\n\n- Register before the course starts using this [link](https://airtable.com/shr6oVXeQvSI5HuWD).\n- Join the [course Telegram channel with announcements](https://t.me/dezoomcamp).\n- Don\u2019t forget to register in DataTalks.Club's Slack and [join](https://datatalks.club/docs/general/slack/) the channel.",
+              "filename": "_questions/data-engineering-zoomcamp/general/001_9e508f2212_course-when-does-the-course-start.md"
+            },
+            {
+              "id": "900f60fd25",
+              "question": "Certificate - Can I follow the course in a self-paced mode and get a certificate?",
+              "sort_order": 15,
+              "content": "No, you can only get a certificate if you finish the course with a \u201clive\u201d cohort. We don't award certificates for the self-paced mode. The reason is you need to peer-review capstone(s) after submitting a project. You can only peer-review projects at the time the course is running.",
+              "filename": "_questions/data-engineering-zoomcamp/general/015_900f60fd25_certificate-can-i-follow-the-course-in-a-self-pace.md"
+            },
+            {
+              "id": "068529125b",
+              "question": "Course - Can I follow the course after it finishes?",
+              "sort_order": 8,
+              "content": "Yes, we will keep all the materials available, so you can follow the course at your own pace after it finishes.\n\nYou can also continue reviewing the homeworks and prepare for the next cohort. You can also start working on your final capstone project.",
+              "filename": "_questions/data-engineering-zoomcamp/general/008_068529125b_course-can-i-follow-the-course-after-it-finishes.md"
+            },
+            {
+              "id": "bfafa427b3",
+              "question": "Course: What are the prerequisites for this course?",
+              "sort_order": 2,
+              "content": "To get the most out of this course, you should have:\n\n- Basic coding experience\n- Familiarity with SQL\n- Experience with Python (helpful but not required)\n\nNo prior data engineering experience is necessary. See [Readme on GitHub](https://github.com/DataTalksClub/data-engineering-zoomcamp/blob/main/README.md#prerequisites).",
+              "filename": "_questions/data-engineering-zoomcamp/general/002_bfafa427b3_course-what-are-the-prerequisites-for-this-course.md"
+            }
+          ],
+          "tool_call_id": "call_vN4QgrCLL2fdSoBKI1PaPwyT",
+          "metadata": null,
+          "timestamp": "2026-04-08T11:43:51.940313+00:00",
+          "part_kind": "tool-return"
+        }
+      ],
+      "instructions": "You are a helpful assistant that answers questions about documentation.  \n\nUse the search tool to find relevant information from the course materials before answering questions.  \n\nIf you can find specific information through search, use it to provide accurate answers.\n\nAlways include references by citing the filename of the source material you used.\nReplace it with the full path to the GitHub repository:\n\"https://github.com/DataTalksClub/faq/blob/main/\"\nFormat: [LINK TITLE](FULL_GITHUB_LINK)\n\n\nIf the search doesn't return relevant results, let the user know and provide general guidance.",
+      "kind": "request"
+    },
+    {
+      "parts": [
+        {
+          "content": "The course is focused on data engineering and is designed for individuals who are interested in learning about the key concepts and skills required in this field. While the specific details about the course content may not have been found, it typically includes instruction on coding, SQL, and Python, which are essential tools in data engineering.\n\nHere are some details that can help you understand the course better:\n\n- **Prerequisites**: It is recommended that students have basic coding experience, some familiarity with SQL, and ideally some experience with Python, although no prior data engineering experience is necessary. [Reference](https://github.com/DataTalksClub/faq/blob/main/_questions/data-engineering-zoomcamp/general/002_bfafa427b3_course-what-are-the-prerequisites-for-this-course.md).\n\n- **Course Availability**: The course materials will be made available for self-paced learning even after the course finishes, allowing students to review homework and work on capstone projects. [Reference](https://github.com/DataTalksClub/faq/blob/main/_questions/data-engineering-zoomcamp/general/008_068529125b_course-can-i-follow-the-course-after-it-finishes.md).\n\nThis course is likely ideal for beginners and those looking to enhance their skills in data engineering.",
+          "id": null,
+          "part_kind": "text"
+        }
+      ],
+      "usage": {
+        "input_tokens": 932,
+        "cache_write_tokens": 0,
+        "cache_read_tokens": 0,
+        "output_tokens": 255,
+        "input_audio_tokens": 0,
+        "cache_audio_read_tokens": 0,
+        "output_audio_tokens": 0,
+        "details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0
+        }
+      },
+      "model_name": "gpt-4o-mini-2024-07-18",
+      "timestamp": "2026-04-08T11:43:52+00:00",
+      "kind": "response",
+      "provider_name": "openai",
+      "provider_details": {
+        "finish_reason": "stop"
+      },
+      "provider_response_id": "chatcmpl-DSLc05yvrVCZ1jLJtQUw2vJbjvJxf",
+      "finish_reason": "stop"
+    }
+  ],
+  "source": "user"
+}

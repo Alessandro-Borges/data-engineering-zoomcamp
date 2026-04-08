@@ -1,5 +1,6 @@
 import streamlit as st
 import asyncio
+import os
 
 import ingest
 import search_agent
@@ -21,10 +22,23 @@ def init_agent():
     return agent
 
 
-agent = init_agent()
-
 # --- Streamlit UI ---
 st.set_page_config(page_title="AI FAQ Assistant", page_icon="🤖", layout="centered")
+
+# Get API key from secrets
+api_key = None
+if "openai" in st.secrets and "api_key" in st.secrets["openai"]:
+    api_key = st.secrets["openai"]["api_key"]
+elif "api_key" in st.secrets:
+    api_key = st.secrets["api_key"]
+else:
+    st.error("OpenAI API key not found in secrets. Available secrets: " + str(list(st.secrets.keys())))
+    st.stop()
+
+os.environ['OPENAI_API_KEY'] = api_key
+
+agent = init_agent()
+
 st.title("🤖 AI FAQ Assistant")
 st.caption("Ask me anything about the DataTalksClub/faq repository")
 
