@@ -1,0 +1,9 @@
+# Local Python virtual environments
+**/.venv/
+
+# Streamlit local secrets
+aihero/app/.streamlit/secrets.toml
+
+# Local helper scripts containing environment setup
+aihero/app/set_openai_key.ps1
+aihero/app/set_openai_key.bat

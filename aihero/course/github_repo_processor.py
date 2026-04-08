@@ -3,7 +3,7 @@
 GitHub Repository Data Processor and LLM Consultant
 
 # API_KEY
-# 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
+# <removed for security; configure OPENAI_API_KEY via environment or Streamlit secrets>
 
 This script:
 1. Fetches markdown documentation from GitHub repositories
@@ -30,6 +30,16 @@ from sentence_transformers import SentenceTransformer
 import numpy as np
 from tqdm.auto import tqdm
 import openai
+from pydantic_ai import Agent
+from pydantic_ai.messages import ModelMessagesTypeAdapter
+import json
+import secrets
+from pathlib import Path
+from datetime import datetime
+import asyncio
+import pandas as pd
+import random
+from pydantic import BaseModel
 
 
 # =============================================================================
@@ -45,7 +55,8 @@ def check_dependencies():
         ('sentence_transformers', 'sentence-transformers'),
         ('numpy', 'numpy'),
         ('tqdm', 'tqdm'),
-        ('openai', 'openai')
+        ('openai', 'openai'),
+        ('pydantic_ai', 'pydantic-ai')
     ]
 
     missing_packages = []
@@ -338,6 +349,21 @@ class DocumentSearch:
         return combined_results
 
 
+def text_search(query: str) -> List[Dict[str, Any]]:
+    """
+    Perform a text-based search on the FAQ index.
+
+    Args:
+        query (str): The search query string.
+
+    Returns:
+        List[Dict[str, Any]]: A list of up to 5 search results.
+    """
+    # This will be set in main
+    global faq_search
+    return faq_search.text_search(query, num_results=5)
+
+
 # =============================================================================
 # LLM INTEGRATION
 # =============================================================================
@@ -397,6 +423,55 @@ class LLMConsultant:
 
 
 # =============================================================================
+# LOGGING FUNCTIONS
+# =============================================================================
+
+LOG_DIR = Path('logs')
+LOG_DIR.mkdir(exist_ok=True)
+
+
+def serializer(obj):
+    if isinstance(obj, datetime):
+        return obj.isoformat()
+    raise TypeError(f"Type {type(obj)} not serializable")
+
+
+def log_entry(agent, messages, source="user"):
+    tools = []
+
+    for ts in agent.toolsets:
+        tools.extend(ts.tools.keys())
+
+    dict_messages = ModelMessagesTypeAdapter.dump_python(messages)
+
+    return {
+        "agent_name": agent.name,
+        "system_prompt": agent._instructions,
+        "provider": agent.model.system,
+        "model": agent.model.model_name,
+        "tools": tools,
+        "messages": dict_messages,
+        "source": source
+    }
+
+
+def log_interaction_to_file(agent, messages, source='user'):
+    entry = log_entry(agent, messages, source)
+
+    # Use current timestamp instead of from messages
+    ts_str = datetime.now().strftime("%Y%m%d_%H%M%S")
+    rand_hex = secrets.token_hex(3)
+
+    filename = f"{agent.name}_{ts_str}_{rand_hex}.json"
+    filepath = LOG_DIR / filename
+
+    with filepath.open("w", encoding="utf-8") as f_out:
+        json.dump(entry, f_out, indent=2, default=serializer)
+
+    return filepath
+
+
+# =============================================================================
 # MAIN EXECUTION
 # =============================================================================
 
@@ -427,9 +502,9 @@ def main():
     print(f"📄 Loaded {len(de_dtc_faq)} Data Engineering FAQ documents")
 
     # Evidently documentation
-    evidently_docs = read_repo_data('evidentlyai', 'docs')
-    evidently_chunks = process_documents_for_search(evidently_docs)
-    print(f"📄 Loaded {len(evidently_chunks)} Evidently documentation chunks")
+    #evidently_docs = read_repo_data('evidentlyai', 'docs')
+    #evidently_chunks = process_documents_for_search(evidently_docs)
+    #print(f"📄 Loaded {len(evidently_chunks)} Evidently documentation chunks")
 
     # Create search indexes
     print("🔍 Creating search indexes...")
@@ -441,11 +516,47 @@ def main():
     faq_embeddings, faq_vector_index = create_vector_index(de_dtc_faq, embedding_model)
 
     # Evidently vector index
-    evidently_embeddings, evidently_vector_index = create_vector_index(evidently_chunks, embedding_model)
+    #evidently_embeddings, evidently_vector_index = create_vector_index(evidently_chunks, embedding_model)
 
     # Create search objects
+    global faq_search
     faq_search = DocumentSearch(faq_text_index, faq_vector_index, embedding_model)
-    evidently_search = DocumentSearch(None, evidently_vector_index, embedding_model)  # No text index for evidently
+    #evidently_search = DocumentSearch(None, evidently_vector_index, embedding_model)  # No text index for evidently
+
+    # System prompt with configurable repo URL
+    GITHUB_REPO_BASE = "https://github.com/DataTalksClub/faq/blob/main/"
+    system_prompt = f"""
+You are a helpful assistant for a course.  
+
+Use the search tool to find relevant information from the course materials before answering questions.  
+
+If you can find specific information through search, use it to provide accurate answers.
+
+Always include references by citing the filename of the source material you used.  
+When citing the reference, format as: [LINK TITLE]({GITHUB_REPO_BASE}{{filename}})
+Replace any "faq-main" references with the full GitHub path.
+
+If the search doesn't return relevant results, let the user know and provide general guidance.  
+""".strip()
+
+    # Create agent
+    agent = Agent(
+        name="faq_agent_v2",
+        instructions=system_prompt,
+        tools=[text_search],
+        model='openai:gpt-4o-mini'
+    )
+
+    # Example interaction
+    question = "I just discovered the course, can I join now?"
+    print(f"\n🤖 Agent Demo - Query: {question}")
+
+    result = agent.run_sync(user_prompt=question)
+    print(f"🤖 Response: {result.output}")
+
+    # Log the interaction
+    log_filepath = log_interaction_to_file(agent, result.new_messages())
+    print(f"📝 Interaction logged to: {log_filepath}")
 
     # Example queries
     queries = [
@@ -463,10 +574,10 @@ def main():
 
         # Search for relevant documents
         faq_results = faq_search.hybrid_search(query, num_results=3)
-        evidently_results = evidently_search.vector_search(query, num_results=3)
+        #evidently_results = evidently_search.vector_search(query, num_results=3)
 
         # Combine results
-        all_results = faq_results + evidently_results
+        all_results = faq_results # + evidently_results
 
         # Generate LLM response
         response = llm_consultant.generate_response(query, all_results)
@@ -475,5 +586,265 @@ def main():
     print("\n✅ Processing complete!")
 
 
+# =============================================================================
+# LLM-AS-A-JUDGE EVALUATION PIPELINE
+# =============================================================================
+
+evaluation_prompt = """
+Use this checklist to evaluate the quality of an AI agent's answer (<ANSWER>) to a user question (<QUESTION>).
+We also include the entire log (<LOG>) for analysis.
+
+For each item, check if the condition is met.
+
+Checklist:
+
+- instructions_follow: The agent followed the user's instructions (in <INSTRUCTIONS>)
+- instructions_avoid: The agent avoided doing things it was told not to do
+- answer_relevant: The response directly addresses the user's question
+- answer_clear: The answer is clear and correct
+- answer_citations: The response includes proper citations or sources when required
+- completeness: The response is complete and covers all key aspects of the request
+- tool_call_search: Is the search tool invoked?
+
+Output true/false for each check and provide a short explanation for your judgment.
+""".strip()
+
+class EvaluationCheck(BaseModel):
+    check_name: str
+    justification: str
+    check_pass: bool
+
+class EvaluationChecklist(BaseModel):
+    checklist: list[EvaluationCheck]
+    summary: str
+
+eval_agent = Agent(
+    name='eval_agent',
+    model='gpt-4o-mini',  # Changed from gpt-5-nano
+    instructions=evaluation_prompt,
+    output_type=EvaluationChecklist
+)
+
+user_prompt_format = """
+<INSTRUCTIONS>{instructions}</INSTRUCTIONS>
+<QUESTION>{question}</QUESTION>
+<ANSWER>{answer}</ANSWER>
+<LOG>{log}</LOG>
+""".strip()
+
+def load_log_file(log_file):
+    with open(log_file, 'r') as f_in:
+        log_data = json.load(f_in)
+        log_data['log_file'] = log_file
+        return log_data
+
+def simplify_log_messages(messages):
+    log_simplified = []
+
+    for m in messages:
+        parts = []
+
+        for original_part in m['parts']:
+            part = original_part.copy()
+            kind = part['part_kind']
+
+            if kind == 'user-prompt':
+                del part['timestamp']
+            if kind == 'tool-call':
+                del part['tool_call_id']
+            if kind == 'tool-return':
+                del part['tool_call_id']
+                del part['metadata']
+                del part['timestamp']
+                # Replace actual search results with placeholder to save tokens
+                part['content'] = 'RETURN_RESULTS_REDACTED'
+            if kind == 'text':
+                del part['id']
+
+            parts.append(part)
+
+        message = {
+            'kind': m['kind'],
+            'parts': parts
+        }
+
+        log_simplified.append(message)
+    return log_simplified
+
+async def evaluate_log_record(eval_agent, log_record):
+    messages = log_record['messages']
+
+    instructions = log_record['system_prompt']
+    question = messages[0]['parts'][0]['content']
+    answer = messages[-1]['parts'][0]['content']
+
+    log_simplified = simplify_log_messages(messages)
+    log = json.dumps(log_simplified)
+
+    user_prompt = user_prompt_format.format(
+        instructions=instructions,
+        question=question,
+        answer=answer,
+        log=log
+    )
+
+    result = await eval_agent.run(user_prompt)
+    return result.output
+
+question_generation_prompt = """
+You are helping to create test questions for an AI agent that answers questions about a data engineering course.
+
+Based on the provided FAQ content, generate realistic questions that students might ask.
+
+The questions should:
+
+- Be natural and varied in style
+- Range from simple to complex
+- Include both specific technical questions and general course questions
+
+Generate one question for each record.
+""".strip()
+
+class QuestionsList(BaseModel):
+    questions: list[str]
+
+question_generator = Agent(
+    name="question_generator",
+    instructions=question_generation_prompt,
+    model='gpt-4o-mini',
+    output_type=QuestionsList
+)
+
+async def generate_questions(faq_data, num_questions=10):
+    sample = random.sample(faq_data, min(num_questions, len(faq_data)))
+    prompt_docs = [d['content'] for d in sample]
+    prompt = json.dumps(prompt_docs)
+
+    result = await question_generator.run(prompt)
+    return result.output.questions
+
+async def run_agent_on_questions(agent, questions):
+    results = []
+    for q in tqdm(questions, desc="Running agent on questions"):
+        result = await agent.run(user_prompt=q)
+        log_filepath = log_interaction_to_file(
+            agent,
+            result.new_messages(),
+            source='ai-generated'
+        )
+        results.append((q, result.output, log_filepath))
+    return results
+
+async def evaluate_logs(eval_agent, log_dir):
+    eval_set = []
+    for log_file in log_dir.glob('*.json'):
+        if 'faq_agent_v2' not in log_file.name:
+            continue
+        log_record = load_log_file(log_file)
+        if log_record.get('source') == 'ai-generated':
+            eval_set.append(log_record)
+
+    print(f"Evaluating {len(eval_set)} logs...")
+
+    # Parallel evaluation for efficiency
+    tasks = [evaluate_log_record(eval_agent, log_record) for log_record in eval_set]
+    eval_results = await asyncio.gather(*tasks)
+
+    return list(zip(eval_set, eval_results))
+
+def create_evaluation_dataframe(eval_results):
+    rows = []
+
+    for log_record, eval_result in eval_results:
+        messages = log_record['messages']
+
+        row = {
+            'file': Path(log_record['log_file']).name,
+            'question': messages[0]['parts'][0]['content'],
+            'answer': messages[-1]['parts'][0]['content'],
+        }
+
+        # Add all checks
+        checks = {c.check_name: c.check_pass for c in eval_result.checklist}
+        row.update(checks)
+
+        rows.append(row)
+
+    df_evals = pd.DataFrame(rows)
+    return df_evals
+
+async def main_evaluation():
+    """Main evaluation pipeline."""
+    print("🚀 Starting LLM-as-a-Judge Evaluation Pipeline")
+
+    # Check dependencies
+    if not check_dependencies():
+        return
+
+    if not check_api_key():
+        return
+
+    # Load data (reuse from main)
+    dtc_faq = read_repo_data('DataTalksClub', 'faq')
+    de_dtc_faq = [d for d in dtc_faq if 'data-engineering' in d.get('filename', '')]
+    print(f"📄 Loaded {len(de_dtc_faq)} Data Engineering FAQ documents")
+
+    # Create search index
+    faq_text_index = create_text_index(de_dtc_faq, ["question", "content"])
+    faq_embeddings, faq_vector_index = create_vector_index(de_dtc_faq, SentenceTransformer(EMBEDDING_MODEL_NAME))
+    global faq_search
+    faq_search = DocumentSearch(faq_text_index, faq_vector_index, SentenceTransformer(EMBEDDING_MODEL_NAME))
+
+    # System prompt
+    GITHUB_REPO_BASE = "https://github.com/DataTalksClub/faq/blob/main/"
+    system_prompt = f"""
+You are a helpful assistant for a course.
+
+Use the search tool to find relevant information from the course materials before answering questions.
+
+If you can find specific information through search, use it to provide accurate answers.
+
+Always include references by citing the filename of the source material you used.
+When citing the reference, format as: [LINK TITLE]({GITHUB_REPO_BASE}{{filename}})
+Replace any "faq-main" references with the full GitHub path.
+
+If the search doesn't return relevant results, let the user know and provide general guidance.
+""".strip()
+
+    # Create agent
+    agent = Agent(
+        name="faq_agent_v2",
+        instructions=system_prompt,
+        tools=[text_search],
+        model='gpt-4o-mini'
+    )
+
+    # Step 1: Generate questions
+    print("📝 Generating test questions...")
+    questions = await generate_questions(de_dtc_faq, num_questions=10)
+    print(f"Generated {len(questions)} questions")
+
+    # Step 2: Run agent on questions
+    print("🤖 Running agent on generated questions...")
+    agent_results = await run_agent_on_questions(agent, questions)
+
+    # Step 3: Evaluate logs
+    print("⚖️ Evaluating agent performance...")
+    eval_results = await evaluate_logs(eval_agent, LOG_DIR)
+
+    # Step 4: Create DataFrame
+    print("📊 Creating evaluation DataFrame...")
+    df_evals = create_evaluation_dataframe(eval_results)
+
+    print("Evaluation Summary:")
+    print(df_evals.mean(numeric_only=True))
+
+    # Save to CSV
+    df_evals.to_csv('evaluation_results.csv', index=False)
+    print("Results saved to evaluation_results.csv")
+
+    print("\n✅ Evaluation pipeline complete!")
+
+
 if __name__ == "__main__":
-    main()
+    asyncio.run(main_evaluation())

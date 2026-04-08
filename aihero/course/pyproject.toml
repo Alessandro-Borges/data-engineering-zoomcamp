@@ -6,11 +6,15 @@ readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "minsearch>=0.0.10",
+    "numpy>=2.4.3",
     "openai>=2.30.0",
+    "pandas>=3.0.1",
+    "pydantic>=2.12.5",
     "pydantic-ai>=1.73.0",
     "python-frontmatter>=1.1.0",
     "requests>=2.32.5",
     "sentence-transformers>=5.3.0",
+    "tqdm>=4.67.3",
 ]
 
 [dependency-groups]
